@@ -31,6 +31,13 @@ class TCPServer:
       with open("server_recv.txt", "wb") as f:
         f.write(request)
 
+      # get response data which will be sent to client from server_send.txt
+      with open("server_send.txt", "rb") as f:
+        response = f.read()
+      
+      # send response to client
+      client_socket.send(response)
+      
       # terminate the connection
       client_socket.close()
 
