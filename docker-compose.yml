@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+web:
+        image:
+        build: ./web
+        container_name: 'py_webserver'
+        port:
+            - 8000:80
