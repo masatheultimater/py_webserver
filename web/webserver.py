@@ -1,8 +1,10 @@
 import socket
+from datetime import datetime
 
-class TCPServer:
+
+class WebServer:
   """
-  class for TCP server
+  class for Web server
   """
   def serve(self):
     
@@ -30,10 +32,23 @@ class TCPServer:
       # write down the data to file
       with open("server_recv.txt", "wb") as f:
         f.write(request)
+        
+      # create response body
+      response_body = "<html><body><h1>It works! My friend!</h1></body></html>"
 
-      # get response data which will be sent to client from server_send.txt
-      with open("server_send.txt", "rb") as f:
-        response = f.read()
+      # create response line
+      response_line = "HTTP/1.1 200 OK\r\n"
+
+      # create response header
+      response_header = ""
+      response_header += f"Date: {datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')}\r\n"
+      response_header += "Host: NinjaServer/0.1\r\n"
+      response_header += f"Content-Length: {len(response_body.encode())}\r\n"
+      response_header += "Connection: Close\r\n"
+      response_header += "Content-type: text/html\r\n"
+
+      # create whole response with joining headers and body
+      response = (response_line + response_header + "\r\n" + response_body).encode()
       
       # send response to client
       client_socket.send(response)
@@ -45,7 +60,7 @@ class TCPServer:
       print("=== stop server ===")
       
 if __name__ == '__main__':
-  server = TCPServer()   
+  server = WebServer()   
   server.serve()
 
       
