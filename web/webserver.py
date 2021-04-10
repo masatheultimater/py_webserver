@@ -60,6 +60,7 @@ class WebServer:
         # create response line
         response_line = "HTTP/1.1 200 OK\r\n"
 
+      # TODO: distinguish more detailed sub class exception(e.g. FileNotFound, ISADirectory..)
       except OSError:
         # case of file not found
         response_body = b"<html><body><h1>404 Not Found!</h1></body></html>"
