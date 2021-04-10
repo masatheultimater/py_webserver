@@ -14,6 +14,15 @@ class WebServer:
   # static file directory (py_webserver/static)
   STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, "../static"))
   
+  # dynamic choice of MIME Type & file extention
+  MIME_TYPES = {
+    "html": "text/html",
+    "css": "text/css",
+    "png": "image/png",
+    "jpg": "image/jpg",
+    "gif": "image/gif",
+  }
+  
   def serve(self):
     
     print("=== server start ===")
@@ -68,13 +77,25 @@ class WebServer:
             response_body = b"<html><body><h1>404 Not Found!</h1></body></html>"
             response_line = "HTTP/1.1 404 Not Found\r\n"
           
+          # get Content-Type from request data
+          
+          ## get extention from path
+          if "." in path:
+            ext = path.rsplit(".", maxsplit=1)[-1]
+          else:
+            ext =""
+          
+          ## get MIME-Type from ext
+          ## give it octet-stream if the ext is not corresponded
+          content_type = self.MIME_TYPES.get(ext, "application/octet-stream")
+          
           # create response header
           response_header = ""
           response_header += f"Date: {datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')}\r\n"
           response_header += "Host: NinjaServer/0.1\r\n"
           response_header += f"Content-Length: {len(response_body)}\r\n"
           response_header += "Connection: Close\r\n"
-          response_header += "Content-type: text/html\r\n"
+          response_header += f"Content-type: {content_type}\r\n"
 
           # create whole response with joining headers and body
           response = (response_line + response_header + "\r\n").encode() + response_body
