@@ -53,12 +53,18 @@ class WebServer:
       static_file_path = os.path.join(self.STATIC_ROOT, relative_path)
       
       # create response body with static file
-      with open(static_file_path, "rb") as f:
-        response_body = f.read()
+      try:
+        with open(static_file_path, "rb") as f:
+          response_body = f.read()
       
-      # create response line
-      response_line = "HTTP/1.1 200 OK\r\n"
+        # create response line
+        response_line = "HTTP/1.1 200 OK\r\n"
 
+      except OSError:
+        # case of file not found
+        response_body = b"<html><body><h1>404 Not Found!</h1></body></html>"
+        response_line = "HTTP/1.1 404 Not Found\r\n"
+      
       # create response header
       response_header = ""
       response_header += f"Date: {datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')}\r\n"
