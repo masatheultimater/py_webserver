@@ -1,7 +1,9 @@
 import os
+import re
 import textwrap
 import traceback
 from datetime import datetime
+from pprint import pformat
 from socket import socket
 from threading import Thread
 from typing import Tuple, Optional
@@ -73,6 +75,31 @@ class WorkerThread(Thread):
         # create response line
         response_line = "HTTP/1.1 200 OK\r\n"
       
+      # create HTML which shows HTTP request contents if the path is /show_request
+      elif path == "/show_request":
+        html = f"""\
+          <html>
+          <body>
+            <h1>Request Line:</h1>
+            <p>
+              {method} {path} {http_version}
+            </p>
+            <h1>Headers:</h1>
+            <pre>{pformat(request_header)}</pre>
+            <h1>Body:</h1>
+            <pre>{request_body.decode("utf-8", "ignore")}</pre>
+          <body>
+          <html>
+        """
+        
+        response_body = textwrap.dedent(html).encode()
+
+        # designate Content-Type
+        content_type = "text/html"
+
+        # create response line
+        response_line = "HTTP/1.1 200 OK\r\n"
+            
       # create static HTML if the path is not \now
       else:
         try:
@@ -114,13 +141,13 @@ class WorkerThread(Thread):
       print(f"=== Worker: terminate the interaction with client, remote_address: {self.client_address} ===")
       self.client_socket.close()
   
-  def parse_http_request(self, request: bytes) -> Tuple[str, str, str, bytes, bytes]:
+  def parse_http_request(self, request: bytes) -> Tuple[str, str, str, dict, bytes]:
     """
     - split/parse the HTTP request into
     1. method: str
     2. path: str
     3. http_version: str
-    4. request_header: bytes
+    4. request_header: dict
     5. request_body: bytes
     """
     
@@ -132,7 +159,13 @@ class WorkerThread(Thread):
     ## parse line into String
     method, path, http_version = request_line.decode().split(" ")
     
-    return method, path, http_version, request_header, request_body
+    ## parse request header into dictionary
+    headers = {}
+    for header_row in request_header.decode().split("\r\n"):
+      key, value = re.split(r": *", header_row, maxsplit=1)
+      headers[key] = value
+    
+    return method, path, http_version, headers, request_body
 
   def get_static_file_content(self, path: str) -> bytes:
     """
