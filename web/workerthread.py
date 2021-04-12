@@ -2,6 +2,7 @@ import os
 import re
 import textwrap
 import traceback
+import urllib.parse
 from datetime import datetime
 from pprint import pformat
 from socket import socket
@@ -58,7 +59,7 @@ class WorkerThread(Thread):
       content_type: Optional[str]
       response_line: str
 
-      # create HTML which shows now date if request path is /now
+      # create HTML which shows now date
       if path == "/now":
         html = f"""\
           <html>
@@ -75,7 +76,7 @@ class WorkerThread(Thread):
         # create response line
         response_line = "HTTP/1.1 200 OK\r\n"
       
-      # create HTML which shows HTTP request contents if the path is /show_request
+      # create HTML which shows HTTP request contents
       elif path == "/show_request":
         html = f"""\
           <html>
@@ -99,7 +100,35 @@ class WorkerThread(Thread):
 
         # create response line
         response_line = "HTTP/1.1 200 OK\r\n"
-            
+      
+      elif path == "/parameters":
+        # TODO: consider the other situations with other METHODS
+        if method == "GET":
+          response_body = b"<html><body>M<h1>405 Method Not Allowed</h1></body></html>"
+          content_type = "text/html; charset=UTF=8"
+          response_line = "HTTP/1.1 405 Method Not Allowed\r\n"
+        
+        # output the params in dictionary into formatted string
+        elif method == "POST":
+          # decode the body & parse decoded query parameters(str)
+          post_params = urllib.parse.parse_qs(request_body.decode())
+          html = f"""\
+            <html>
+            <body>
+              <h1>Parameters:</h1>
+              <pre>{pformat(post_params)}</pre>
+            <body>
+            <html>
+          """
+          
+          response_body = textwrap.dedent(html).encode()
+
+          # designate Content-Type
+          content_type = "text/html; charset=UTF-8"
+
+          # create response line
+          response_line = "HTTP/1.1 200 OK\r\n"
+                
       # create static HTML if the path is not \now
       else:
         try:
@@ -111,7 +140,7 @@ class WorkerThread(Thread):
         
           # create response line
           response_line = "HTTP/1.1 200 OK\r\n"
-
+      
         # TODO: distinguish more detailed sub class exception(e.g. FileNotFound, ISADirectory..)
         except OSError:
           # return 404 error in case of file not found
@@ -197,9 +226,6 @@ class WorkerThread(Thread):
       # give it octet-stream if the ext is not corresponded
       content_type = self.MIME_TYPES.get(ext, "application/octet-stream")
       
-    
-
-    
     # create response header
     response_header = ""
     response_header += f"Date: {datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')}\r\n"
