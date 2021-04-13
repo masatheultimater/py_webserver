@@ -1,4 +1,4 @@
-import views
+import web.views as views
 
 # correspondence between path & views function
 URL_VIEW = {

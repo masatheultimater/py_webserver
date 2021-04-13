@@ -4,24 +4,19 @@ import traceback
 from datetime import datetime
 from socket import socket
 from threading import Thread
-from typing import Tuple, Optional
+from typing import Tuple
 
-import views
+import settings
 from util.http.request import HTTPRequest
 from util.http.response import HTTPResponse
-from urls import URL_VIEW
+from web.urls import URL_VIEW
 
 
-class WorkerThread(Thread):
+class Worker(Thread):
   """
   class for worker thread
   """
-  
-  # main script directory (py_webserver/web)
-  BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-  # static file directory (py_webserver/static)
-  STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, "../static"))
-  
+
   # dynamic choice of MIME Type & file extention
   MIME_TYPES = {
     "html": "text/html; charset=UTF-8",
@@ -149,10 +144,13 @@ class WorkerThread(Thread):
     - get static file contents from request path
     """
     
+    default_static_root = os.path.join(os.path.dirname(__file__), "../../static")
+    static_root = getattr(settings, "STATIC_ROOT", default_static_root)
+
     # delete front / and make it relative path
     relative_path = path.lstrip("/")
     # get the file path
-    static_file_path = os.path.join(self.STATIC_ROOT, relative_path)
+    static_file_path = os.path.join(static_root, relative_path)
     
     with open(static_file_path, "rb") as f:
       return f.read()
