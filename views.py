@@ -7,6 +7,7 @@ from util.http.request import HTTPRequest
 from util.http.response import HTTPResponse
 from util.template.renderer import render
 
+
 def now(request: HTTPRequest) -> HTTPResponse:
   """
   - create dynamic HTML that shows now date
@@ -15,10 +16,7 @@ def now(request: HTTPRequest) -> HTTPResponse:
   context = {"now": datetime.now()}
   body = render("now.html", context)
   
-  # designate Content-Type
-  content_type = "text/html; charset=UTF-8"
-  
-  return HTTPResponse(body=body, content_type=content_type, status_code=200)
+  return HTTPResponse(body=body)
 
 
 def show_request(request: HTTPRequest) -> HTTPResponse:
@@ -81,6 +79,7 @@ def parameters(request: HTTPRequest) -> HTTPResponse:
     status_code = 200
 
   return HTTPResponse(body=body, content_type=content_type, status_code=status_code)
+
 
 def user_profile(request: HTTPRequest) -> HTTPResponse:
   """
