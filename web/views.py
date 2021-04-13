@@ -1,14 +1,7 @@
-import sys
-import pathlib
 import textwrap
 import urllib.parse
 from datetime import datetime
 from pprint import pformat
-from typing import Optional, Tuple
-
-
-current_dir = pathlib.Path(__file__).resolve().parent
-sys.path.append(str(current_dir) + "/../")
 
 from util.http.request import HTTPRequest
 from util.http.response import HTTPResponse
@@ -94,3 +87,26 @@ def parameters(request: HTTPRequest) -> HTTPResponse:
     status_code = 200
 
   return HTTPResponse(body=body, content_type=content_type, status_code=status_code)
+
+def user_profile(request: HTTPRequest) -> HTTPResponse:
+  """
+  - return REST style user resource 
+  """
+  user_id = request.params["user_id"]
+  html = f"""\
+    <html>
+    <body>
+      <h1>Profile</h1>
+      <p>ID: {user_id}</p>
+    </body>
+    </html>
+  """
+  body = textwrap.dedent(html).encode()
+  content_type = "text/html; charset=UTF-8"
+  status_code = 200
+  
+  return HTTPResponse(
+    body=body,
+    content_type=content_type,
+    status_code=status_code
+  )
