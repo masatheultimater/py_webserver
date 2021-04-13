@@ -13,9 +13,7 @@ def now(request: HTTPRequest) -> HTTPResponse:
   """
 
   context = {"now": datetime.now()}
-  html = render("now.html", context)
-  
-  body = html.encode()
+  body = render("now.html", context)
   
   # designate Content-Type
   content_type = "text/html; charset=UTF-8"

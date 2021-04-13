@@ -65,6 +65,10 @@ class Worker(Thread):
       # create response from view 
       response = view(request)
       
+      # parse response body str -> bytes
+      if isinstance(response.body, str):
+        response.body = response.body.encode()
+      
       # create response line
       response_line = self.build_response_line(response)
       
