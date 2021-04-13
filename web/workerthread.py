@@ -9,6 +9,7 @@ from typing import Tuple, Optional
 import views
 from util.http.request import HTTPRequest
 from util.http.response import HTTPResponse
+from urls import URL_VIEW
 
 
 class WorkerThread(Thread):
@@ -28,13 +29,6 @@ class WorkerThread(Thread):
     "png": "image/png",
     "jpg": "image/jpg",
     "gif": "image/gif",
-  }
-  
-  # correspondence between path & views function
-  URL_VIEW = {
-    "/now": views.now,
-    "/show_request": views.show_request,
-    "/parameters": views.parameters,
   }
   
   # TODO: correspond to more status_codes(100s, 300s, 500s...)
@@ -71,8 +65,8 @@ class WorkerThread(Thread):
       request = self.parse_http_request(request_bytes)
 
       # find function in views.py & create response body
-      if request.path in self.URL_VIEW:
-        view = self.URL_VIEW[request.path]
+      if request.path in URL_VIEW:
+        view = URL_VIEW[request.path]
         response = view(request)
         
       # create static HTML if the path is not \now
