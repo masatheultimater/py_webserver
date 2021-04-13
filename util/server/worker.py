@@ -9,7 +9,7 @@ from typing import Tuple
 import settings
 from util.http.request import HTTPRequest
 from util.http.response import HTTPResponse
-from web.urls import URL_VIEW
+from util.urls.resolver import URLResolver
 
 
 class Worker(Thread):
@@ -59,35 +59,11 @@ class Worker(Thread):
       # parse the HTTP request
       request = self.parse_http_request(request_bytes)
 
-      # find function in views.py & create response body
-      if request.path in URL_VIEW:
-        view = URL_VIEW[request.path]
-        response = view(request)
-        
-      # create static HTML if the path is not \now
-      else:
-        try:
-          # create response body from static file
-          response_body = self.get_static_file_content(request.path)
-          
-          # desinate Content-Type
-          content_type = None
-        
-          # create response 
-          response = HTTPResponse(body=response_body, content_type=content_type, status_code=200)
+      # URL resolve
+      view = URLResolver().resolve(request)
       
-        # TODO: distinguish more detailed sub class exception(e.g. FileNotFound, ISADirectory..)
-        except OSError:
-          # return 404 error in case of file not found
-          traceback.print_exc()
-
-          response_body = b"<html><body><h1>404 Not Found!</h1></body></html>"
-          content_type = "text/html;"
-          response = HTTPResponse(
-            body=response_body,
-            content_type=content_type,
-            status_code=404
-          )
+      # create response from view 
+      response = view(request)
       
       # create response line
       response_line = self.build_response_line(response)
@@ -138,24 +114,7 @@ class Worker(Thread):
       headers=headers,
       body=request_body
     )
-
-  def get_static_file_content(self, path: str) -> bytes:
-    """
-    - get static file contents from request path
-    """
-    
-    default_static_root = os.path.join(os.path.dirname(__file__), "../../static")
-    static_root = getattr(settings, "STATIC_ROOT", default_static_root)
-
-    # delete front / and make it relative path
-    relative_path = path.lstrip("/")
-    # get the file path
-    static_file_path = os.path.join(static_root, relative_path)
-    
-    with open(static_file_path, "rb") as f:
-      return f.read()
-  
-  
+   
   def build_response_line(self, response: HTTPResponse) -> str:
     """
     - build response line
@@ -190,3 +149,4 @@ class Worker(Thread):
     response_header += f"Content-type: {response.content_type}\r\n"
     
     return response_header
+
