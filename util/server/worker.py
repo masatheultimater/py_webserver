@@ -2,15 +2,14 @@ import os
 import re
 import traceback
 from datetime import datetime
-from re import Match
 from socket import socket
 from threading import Thread
-from typing import Optional, Tuple
+from typing import Tuple
 
 import settings
 from util.http.request import HTTPRequest
 from util.http.response import HTTPResponse
-from web.urls import URL_VIEW
+from web.urls import url_patterns
 
 
 class Worker(Thread):
@@ -61,14 +60,15 @@ class Worker(Thread):
       request = self.parse_http_request(request_bytes)
 
       # create response from view 
-      for url_pattern, view in URL_VIEW.items():
-        match = self.url_match(url_pattern, request.path)
+      for url_pattern in url_patterns:
+        match = url_pattern.match(request.path)
         if match:
           request.params.update(match.groupdict())
+          view = url_pattern.view
           response = view(request)
           break
         
-      # create static HTML if the path is not \now
+      # create static HTML if the path does not match
       else:
         try:
           # create response body from static file
@@ -195,8 +195,3 @@ class Worker(Thread):
     
     return response_header
 
-  def url_match(self, url_pattern: str, path: str) -> Optional[Match]:
-    # parse URL to regular expression
-    # ex) '/user/<user_id>/profile' => '/user/(?P<user_id>[^/]+)/profile'
-    re_pattern = re.sub(r"<(.+?)>", r"(?P<\1>[^/]+)", url_pattern)
-    return re.match(re_pattern, path)
