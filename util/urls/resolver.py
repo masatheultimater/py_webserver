@@ -1,6 +1,5 @@
-
-
 from typing import Callable, Optional
+
 from util.http.request import HTTPRequest
 from util.http.response import HTTPResponse
 from urls import url_patterns
