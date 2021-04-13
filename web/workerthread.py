@@ -6,10 +6,9 @@ from socket import socket
 from threading import Thread
 from typing import Tuple, Optional
 
-import views
 from util.http.request import HTTPRequest
 from util.http.response import HTTPResponse
-from urls import URL_VIEW
+from web.urls import URL_VIEW
 
 
 class WorkerThread(Thread):
