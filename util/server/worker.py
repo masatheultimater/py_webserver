@@ -2,9 +2,10 @@ import os
 import re
 import traceback
 from datetime import datetime
+from re import Match
 from socket import socket
 from threading import Thread
-from typing import Tuple
+from typing import Optional, Tuple
 
 import settings
 from util.http.request import HTTPRequest
@@ -59,10 +60,13 @@ class Worker(Thread):
       # parse the HTTP request
       request = self.parse_http_request(request_bytes)
 
-      # find function in views.py & create response body
-      if request.path in URL_VIEW:
-        view = URL_VIEW[request.path]
-        response = view(request)
+      # create response from view 
+      for url_pattern, view in URL_VIEW.items():
+        match = self.url_match(url_pattern, request.path)
+        if match:
+          request.params.update(match.groupdict())
+          response = view(request)
+          break
         
       # create static HTML if the path is not \now
       else:
@@ -190,3 +194,9 @@ class Worker(Thread):
     response_header += f"Content-type: {response.content_type}\r\n"
     
     return response_header
+
+  def url_match(self, url_pattern: str, path: str) -> Optional[Match]:
+    # parse URL to regular expression
+    # ex) '/user/<user_id>/profile' => '/user/(?P<user_id>[^/]+)/profile'
+    re_pattern = re.sub(r"<(.+?)>", r"(?P<\1>[^/]+)", url_pattern)
+    return re.match(re_pattern, path)
