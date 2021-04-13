@@ -5,16 +5,16 @@ from pprint import pformat
 
 from util.http.request import HTTPRequest
 from util.http.response import HTTPResponse
+from util.template.renderer import render
 
 def now(request: HTTPRequest) -> HTTPResponse:
   """
   - create dynamic HTML that shows now date
   """
 
-  with open("./templates/now.html") as f:
-    template = f.read()
-    html = template.format(now=datetime.now())
-
+  context = {"now": datetime.now()}
+  html = render("./templates/now.html", context)
+  
   body = textwrap.dedent(html).encode()
   
   # designate Content-Type
