@@ -1,4 +1,4 @@
-from web.webserver import WebServer
+from util.server.server import Server
 
 if __name__ == "__main__":
-  WebServer().serve()
+  Server().serve()

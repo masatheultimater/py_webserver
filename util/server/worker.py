@@ -4,14 +4,14 @@ import traceback
 from datetime import datetime
 from socket import socket
 from threading import Thread
-from typing import Tuple, Optional
+from typing import Tuple
 
 from util.http.request import HTTPRequest
 from util.http.response import HTTPResponse
 from web.urls import URL_VIEW
 
 
-class WorkerThread(Thread):
+class Worker(Thread):
   """
   class for worker thread
   """

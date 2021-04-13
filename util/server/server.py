@@ -1,8 +1,8 @@
 import socket
-from web.workerthread import WorkerThread
+from util.server.worker import Worker
 
 
-class WebServer:
+class Server:
   """
   class for Web server
   """
@@ -25,7 +25,7 @@ class WebServer:
         print(f"=== Server: complete connection to client, remote_address: {address} ===")
 
         # create thread to proceed client request
-        thread = WorkerThread(client_socket, address)
+        thread = Worker(client_socket, address)
         # run thread
         thread.start()
 
