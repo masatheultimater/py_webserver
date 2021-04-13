@@ -1,8 +1,6 @@
 import os
 import re
-import textwrap
 import traceback
-import urllib.parse
 from datetime import datetime
 from pprint import pformat
 from socket import socket
@@ -28,6 +26,13 @@ class WorkerThread(Thread):
     "png": "image/png",
     "jpg": "image/jpg",
     "gif": "image/gif",
+  }
+  
+  # correspondence between path & views function
+  URL_VIEW = {
+    "/now": views.now,
+    "/show_request": views.show_request,
+    "/parameters": views.parameters,
   }
   
   def __init__(self, client_socket: socket, address: Tuple[str, int]):
@@ -60,19 +65,13 @@ class WorkerThread(Thread):
       content_type: Optional[str]
       response_line: str
 
-      # create HTML which shows now date
-      if path == "/now":
-        response_body, content_type, response_line = views.now()
-      
-      # create HTML which shows HTTP request contents
-      elif path == "/show_request":
-        response_body, content_type, response_line = views.show_request(
+      # find function in views.py & create response body
+      if path in self.URL_VIEW:
+        view = self.URL_VIEW[path]
+        response_body, content_type, response_line = view(
           method, path, http_version, request_header, request_body
         )
-   
-      elif path == "/parameters":
-        response_body, content_type, response_line = views.parameters(method, request_body)
-                
+        
       # create static HTML if the path is not \now
       else:
         try:
