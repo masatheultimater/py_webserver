@@ -11,13 +11,9 @@ def now(request: HTTPRequest) -> HTTPResponse:
   - create dynamic HTML that shows now date
   """
 
-  html = f"""\
-    <html>
-    <body>
-      <h1>Now: {datetime.now()}</h1>
-    </body>
-    </html>
-  """
+  with open("./templates/now.html") as f:
+    template = f.read()
+    html = template.format(now=datetime.now())
 
   body = textwrap.dedent(html).encode()
   

@@ -1,4 +1,4 @@
-import web.views as views
+import views as views
 from util.urls.pattern import URLPattern
 
 # correspondence between path & views function
