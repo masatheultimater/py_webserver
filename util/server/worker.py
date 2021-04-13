@@ -9,7 +9,7 @@ from typing import Tuple
 import settings
 from util.http.request import HTTPRequest
 from util.http.response import HTTPResponse
-from web.urls import url_patterns
+from util.urls.resolver import URLResolver
 
 
 class Worker(Thread):
@@ -59,16 +59,14 @@ class Worker(Thread):
       # parse the HTTP request
       request = self.parse_http_request(request_bytes)
 
+      # URL resolve
+      view = URLResolver().resolve(request)
+      
       # create response from view 
-      for url_pattern in url_patterns:
-        match = url_pattern.match(request.path)
-        if match:
-          request.params.update(match.groupdict())
-          view = url_pattern.view
-          response = view(request)
-          break
+      if view:
+        response = view(request)
         
-      # create static HTML if the path does not match
+      # create static HTML if URL resolve failed
       else:
         try:
           # create response body from static file
