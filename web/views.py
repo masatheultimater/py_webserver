@@ -1,8 +1,13 @@
+import sys
+import pathlib
 import textwrap
 import urllib.parse
 from datetime import datetime
 from pprint import pformat
 from typing import Optional, Tuple
+
+current_dir = pathlib.Path(__file__).resolve().parent
+sys.path.append(str(current_dir) + "/../")
 
 from util.http.request import HTTPRequest
 from util.http.response import HTTPResponse
