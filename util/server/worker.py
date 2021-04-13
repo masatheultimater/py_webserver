@@ -65,6 +65,10 @@ class Worker(Thread):
       # create response from view 
       response = view(request)
       
+      # parse response body str -> bytes
+      if isinstance(response.body, str):
+        response.body = response.body.encode()
+      
       # create response line
       response_line = self.build_response_line(response)
       
@@ -134,11 +138,13 @@ class Worker(Thread):
       # get extension from path
       if "." in request.path:
         ext = request.path.rsplit(".", maxsplit=1)[-1]
+        # get MIME-Type from ext
+        # give it octet-stream if the ext is not corresponded
+        response.content_type = self.MIME_TYPES.get(ext, "application/octet-stream")
       else:
-        ext =""
-      # get MIME-Type from ext
-      # give it octet-stream if the ext is not corresponded
-      response.content_type = self.MIME_TYPES.get(ext, "application/octet-stream")
+        # treat it as html if no extension
+        response.content_type = "text/html; charset=UTF-8"
+
       
     # create response header
     response_header = ""
