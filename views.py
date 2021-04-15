@@ -65,7 +65,7 @@ def set_cookie(request: HTTPRequest) -> HTTPResponse:
   - set cookie in response header
   """
   
-  return HTTPResponse(headers={"Set-Cookie": "username=MASA"})
+  return HTTPResponse(cookies={"username": "MASA"})
 
 
 def login(request: HTTPRequest) -> HTTPResponse:
@@ -84,11 +84,13 @@ def login(request: HTTPRequest) -> HTTPResponse:
     # get username from input name in POST request body
     post_params = urllib.parse.parse_qs(request.body.decode())
     username = post_params["username"][0]
+    email = post_params["email"][0]
 
-    # create headers for cookie & redirect URL
-    headers = {"Location": "/welcome", "Set-Cookie": f"username={username}"}
-    
-    return HTTPResponse(status_code=302, headers=headers)
+    return HTTPResponse(
+      status_code=302,
+      headers={"Location" : "/welcome"},
+      cookies={"username": username, "email": email}
+    )
 
 
 def welcome(request: HTTPRequest) -> HTTPResponse:
@@ -96,27 +98,13 @@ def welcome(request: HTTPRequest) -> HTTPResponse:
   - show welcome page to identified user who has input user name in login page
   """
   
-  cookie_header = request.headers.get("Cookie", None)
-
   # if not been loged in , redirect to /login
-  if not cookie_header:
+  if "username" not in request.cookies:
     return HTTPResponse(status_code=302, headers={"Location": "/login"})
 
-  # parse list into str
-  # e.g.) "hoge1=val1; hoge2=val2" -> ["hoge1=val1", "hoge2=val2"]
-  cookie_strings = cookie_header.split("; ")
-  
-  # parse list into dict
-  # just in case request header send multiple cookie
-  cookies = {}
-  for cookie_string in cookie_strings:
-    name, value = cookie_string.split("=", maxsplit=1)
-    cookies[name] = value
-  
-  # not include username in cookie, redirct to /login
-  if "username" not in cookies:
-    return HTTPResponse(status_code=302, headers={"Location": "/login"})
+  username = request.cookies["username"]
+  email = request.cookies["email"]
 
-  body = render("welcome.html", context={"username": cookies["username"]})
+  body = render("welcome.html", context={"username": username, "email": email})
 
   return HTTPResponse(body=body)
