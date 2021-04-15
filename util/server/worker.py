@@ -1,4 +1,3 @@
-import os
 import re
 import traceback
 from datetime import datetime
@@ -6,7 +5,6 @@ from socket import socket
 from threading import Thread
 from typing import Tuple
 
-import settings
 from util.http.request import HTTPRequest
 from util.http.response import HTTPResponse
 from util.urls.resolver import URLResolver
@@ -153,6 +151,10 @@ class Worker(Thread):
     response_header += f"Content-Length: {len(response.body)}\r\n"
     response_header += "Connection: Close\r\n"
     response_header += f"Content-type: {response.content_type}\r\n"
+    
+    # add headers attributes in response object
+    for header_name, header_value in response.headers.items():
+      response_header += f"{header_name}: {header_value}\r\n"
     
     return response_header
 
