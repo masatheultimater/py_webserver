@@ -110,11 +110,19 @@ class Worker(Thread):
       key, value = re.split(r": *", header_row, maxsplit=1)
       headers[key] = value
     
+    cookies = {}
+    if "Cookie" in headers:
+      cookie_strings = headers["Cookie"].split("; ")
+      for cookie_string in cookie_strings:
+        name, value = cookie_string.split("=", maxsplit=1)
+        cookies[name] = value
+    
     return HTTPRequest(
       method=method,
       path=path,
       http_version=http_version,
       headers=headers,
+      cookies=cookies,
       body=request_body
     )
    
