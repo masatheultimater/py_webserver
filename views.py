@@ -2,6 +2,7 @@ import urllib.parse
 from datetime import datetime
 from pprint import pformat
 
+from util.http.cookie import Cookie
 from util.http.request import HTTPRequest
 from util.http.response import HTTPResponse
 from util.template.renderer import render
@@ -65,7 +66,7 @@ def set_cookie(request: HTTPRequest) -> HTTPResponse:
   - set cookie in response header
   """
   
-  return HTTPResponse(cookies={"username": "MASA"})
+  return HTTPResponse(cookies=[Cookie(name="username", value="MASA")])
 
 
 def login(request: HTTPRequest) -> HTTPResponse:
@@ -86,10 +87,15 @@ def login(request: HTTPRequest) -> HTTPResponse:
     username = post_params["username"][0]
     email = post_params["email"][0]
 
+    cookies = [
+      Cookie(name="username", value=username, max_age=30),
+      Cookie(name="email", value=email, max_age=30),
+    ]
+    
     return HTTPResponse(
       status_code=302,
       headers={"Location" : "/welcome"},
-      cookies={"username": username, "email": email}
+      cookies=cookies
     )
 
 
