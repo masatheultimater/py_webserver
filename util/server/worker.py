@@ -28,6 +28,7 @@ class Worker(Thread):
   # correspondence between status_code & status_line
   STATUS_LINES = {
     200: "200 OK",
+    302: "302 Found",
     404: "404 Not Found",
     405: "Method Not Allowed",
   }
