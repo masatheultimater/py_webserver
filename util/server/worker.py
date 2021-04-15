@@ -153,6 +153,10 @@ class Worker(Thread):
     response_header += "Connection: Close\r\n"
     response_header += f"Content-type: {response.content_type}\r\n"
     
+    # add multiple cookie headers
+    for cookie_name, cookie_value in response.cookies.items():
+      response_header += f"Set-Cookie: {cookie_name}={cookie_value}\r\n"
+    
     # add headers attributes in response object
     for header_name, header_value in response.headers.items():
       response_header += f"{header_name}: {header_value}\r\n"
