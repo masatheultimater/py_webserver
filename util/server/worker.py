@@ -152,7 +152,6 @@ class Worker(Thread):
         # treat it as html if no extension
         response.content_type = "text/html; charset=UTF-8"
 
-      
     # create response header
     response_header = ""
     response_header += f"Date: {datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')}\r\n"
@@ -161,11 +160,25 @@ class Worker(Thread):
     response_header += "Connection: Close\r\n"
     response_header += f"Content-type: {response.content_type}\r\n"
     
-    # add multiple cookie headers
-    for cookie_name, cookie_value in response.cookies.items():
-      response_header += f"Set-Cookie: {cookie_name}={cookie_value}\r\n"
-    
-    # add headers attributes in response object
+    # create multiple cookie headers
+    for cookie in response.cookies:
+      cookie_header = f"Set-Cookie: {cookie.name}={cookie.value}"
+      if cookie.expires is not None:
+        cookie_header += f"; Expires={cookie.expires.strftime('%a, %d %b %Y %H:%M:%S GMT')}"
+      if cookie.max_age is not None:
+        cookie_header += f"; Max_Age={cookie.max_age}"
+      if cookie.domain:
+        cookie_header += f"; Domain={cookie.domain}"
+      if cookie.path:
+        cookie_header += f"; Path={cookie.path}"
+      if cookie.secure:
+        cookie_header += f"; Secure"
+      if cookie.http_only:
+        cookie_header += f"; HttpOnly"
+      
+      response_header += cookie_header + "\r\n"
+
+    # other custom headers attributes in response object
     for header_name, header_value in response.headers.items():
       response_header += f"{header_name}: {header_value}\r\n"
     
