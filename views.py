@@ -1,4 +1,3 @@
-import textwrap
 import urllib.parse
 from datetime import datetime
 from pprint import pformat
@@ -59,3 +58,10 @@ def user_profile(request: HTTPRequest) -> HTTPResponse:
   body = render("user_profile.html", context)
   
   return HTTPResponse(body=body)
+
+
+def set_cookie(request: HTTPRequest) -> HTTPResponse:
+  """
+  - set cookie in response header
+  """
+  return HTTPResponse(headers={"Set-Cookie": "username=MASA"})
