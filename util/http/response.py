@@ -1,4 +1,6 @@
-from typing import Optional, Union, Dict
+from typing import Optional, Union, List
+
+from util.http.cookie import Cookie
 
 """
 - class for dealing with HTTP response parameters
@@ -6,7 +8,7 @@ from typing import Optional, Union, Dict
 class HTTPResponse:
   status_code: int
   headers: dict
-  cookies: dict
+  cookies: List[Cookie]
   content_type: Optional[str]
   body: Union[bytes, str]
   
@@ -14,14 +16,14 @@ class HTTPResponse:
     self,
     status_code: int = 200,
     headers: dict = None,
-    cookies: dict = None,
+    cookies: List[Cookie] = None,
     content_type: str = None,
     body: Union[bytes, str] = b""
   ):
     if headers is None:
       headers = {}
     if cookies is None:
-      cookies = {}
+      cookies = []
 
     self.status_code = status_code
     self.headers = headers
